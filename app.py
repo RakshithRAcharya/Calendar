@@ -214,7 +214,6 @@ class Event_Utils(FlaskView):
 				tmp_event = Event.query.filter_by(id=new_id).first()
 				tmp_event.url = 'http://127.0.0.1:5000/edit/' + str(new_id)
 				db.session.commit()
-
 				return redirect(url_for('Event_Utils:edit'))
 			except Exception as e:
 				print(e)
@@ -250,6 +249,33 @@ def index():
 @login_required
 def dashboard():
 	return render_template('calendar_events.html', name=current_user.username)
+
+@app.route('/calendar-events')
+def calendar_events():
+	conn = None
+	cursor = None
+	try:
+		conn = sqlite3.connect("database.db")
+		cursor = conn.cursor()
+		sql_select = "SELECT id, title, url, type, (strftime('%s', start_time)-28800)*1000 as start, (strftime('%s', end_time)-28800)*1000 as end FROM event where author_name='" + current_user.username + "'";
+		rows = cursor.execute(sql_select).fetchall()
+		print(rows)
+
+		rows_dict = []
+		dict_key = ('id','title','url','class','start','end')
+		for line in rows:
+			rows_dict.append(dict(zip(dict_key, line)))
+
+		resp = jsonify({'success' : 1, 'result' : rows_dict})
+		resp.status_code = 200
+		return resp
+	except Exception as e:
+		print('OH my god! Exception found!')
+		print(e)
+	finally:
+		print("There is a finally in calendar_event that I don’t know why, conn is Nonetype, and the database has not been deployed yet")
+		cursor.close()
+		conn.close()
 	
 
 class User_Utils(FlaskView):
