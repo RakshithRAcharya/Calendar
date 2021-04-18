@@ -76,7 +76,7 @@
 							<option value="1">The first day of the week is Monday</option>
 						</select>
 						<label class="checkbox">
-							<input type="checkbox" value="#events-modal" id="events-in-modal">Open Events in the modal window
+							<input type="checkbox" value="#events-modal" id="events-in-modal" checked>Open Events in the modal window
 						</label>
 						<label class="checkbox">
 							<input type="checkbox" id="format-12-hours"> Open 12-hour events
@@ -97,6 +97,7 @@
 
 			<script type="text/javascript" src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
         	<script type="text/javascript" src="../static/js/jquery-ui.min.js"></script>
+			<script type="text/javascript" src="../static/js/moment.min.js"></script>
         	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.20/jquery.datetimepicker.full.js"></script>
         	<script>
             	$("#datetime").datetimepicker();
@@ -114,7 +115,6 @@
 				</div>
 				<div class="modal-footer">
 					<a href="#" data-dismiss="modal" class="btn">Close</a>
-					<a href="#" data-dismiss="modal" class="btn-large">submit</a>
 				</div>
 			</div>
 			
@@ -170,7 +170,7 @@
 					});
 	
 					$('#events-in-modal').change(function(){
-						var val = $(this).is(':checked') ? $(this).val() : null;
+						var val = $(this).is(':checked') ? $(this).val() : $(this).val();
 						calendar.setOptions({modal: val});
 					});
 					$('#format-12-hours').change(function(){

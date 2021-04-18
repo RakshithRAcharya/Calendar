@@ -163,8 +163,16 @@
     <script src="https://smtpjs.com/v3/smtp.js"></script>
     <script type="text/javascript">
         $(function () {
-          $('#datetime-start').datetimepicker();
-          $('#datetime-end').datetimepicker();
+          $('#datetime-start').datetimepicker({onShow:function( ct ){
+   this.setOptions({
+    maxDate:jQuery('#datetime-end').val()?jQuery('#datetime-end').val():false
+   })
+  }});
+          $('#datetime-end').datetimepicker({onShow:function( ct ){
+   this.setOptions({
+    minDate:jQuery('#datetime-start').val()?jQuery('#datetime-start').val():false
+   })
+  }});
         });
 
 		function deleteEntry(r){
