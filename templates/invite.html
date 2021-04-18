@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block title %}
+Invite
+{% endblock %}
+{% block content %}
+    <div class="container">
+        <div class="column is-4 is-offset-4">
+            <h3 class="title">Invite</h3>
+            <div class="box">
+                <form class="invite-form" method="POST" action="/invite">
+                {{ form.csrf_token }}
+                {{ form.hidden_tag() }}
+                
+                <div class="field" align="center">
+                    <div class="control">
+                        {{ wtf.form_field(form.event_id) }}
+                    </div>
+                    <div class="control">
+                        {{ wtf.form_field(form.invite_list) }}
+                    </div>
+                </div>
+                <button class="button is-block is-info is-fullwidth" type="submit">
+                    submit
+                </button>
+                {% with messages = get_flashed_messages() %}
+                {% endwith %}
+            </form>
+
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
