@@ -51,7 +51,7 @@
 				<div class="pull-right form-inline">
 					<div class="btn-group">
 						<button class="btn btn-primary" data-calendar-nav="prev"><< Prev</button>
-						<button class="btn" data-calendar-nav="today">Today</button>
+						<button class="btn" data-calendar-nav="today">Present</button>
 						<button class="btn btn-primary" data-calendar-nav="next">Next >></button>
 					</div>
 					<div class="btn-group">
@@ -169,7 +169,7 @@
 						calendar.view();
 					});
 	
-					$('#events-in-modal').change(function(){
+					$('#events-in-modal').each(function(){
 						var val = $(this).is(':checked') ? $(this).val() : $(this).val();
 						calendar.setOptions({modal: val});
 					});
