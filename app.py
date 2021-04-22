@@ -234,7 +234,7 @@ class Event_Utils(FlaskView):
 			sql_search = '%' + keyword + '%'
 			result = Event.query.filter_by(author_name=current_user.username).filter(Event.title.ilike(sql_search)).order_by(Event.start_time).all()
 
-			flash('The search is complete.', 'info')
+			# flash('The search is complete.', 'info')
 			print("The search form is legal! ! Searched" + sql_search + "Output search results below")
 			print(result)
 			for ev in result:
