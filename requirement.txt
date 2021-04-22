@@ -17,3 +17,4 @@ Flask-WTF
 Jinja2
 WTForms
 pymysql
+python-decouple

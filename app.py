@@ -18,28 +18,30 @@ from flask import request
 from flask_mail import Mail, Message
 from os import environ
 import pprint
+from decouple import config
+
 
 app = Flask(__name__)
 
 mail= Mail(app)
 mysql = MySQL()
 
-app.config['MAIL_SERVER']='smtp.gmail.com'
-app.config['MAIL_PORT'] = 465
-app.config['MAIL_USERNAME'] = 'testingexample160@gmail.com'
-app.config['MAIL_PASSWORD'] = 'Password@123'
-app.config['MAIL_USE_TLS'] = False
-app.config['MAIL_USE_SSL'] = True
-app.config['MAIL_DEFAULT_SENDER'] = 'testingexample160@gmail.com'
-app.config['MAIL_ASCII_ATTACHMENTS'] = True
-app.config['DEBUG'] = True
+app.config['MAIL_SERVER']= config("MAIL_SERVER")
+app.config['MAIL_PORT'] = config("MAIL_PORT")
+app.config['MAIL_USERNAME'] = config("MAIL_USERNAME")
+app.config['MAIL_PASSWORD'] = config("MAIL_PASSWORD")
+app.config['MAIL_USE_TLS'] = config("MAIL_USE_TLS", cast=bool)
+app.config['MAIL_USE_SSL'] = config("MAIL_USE_SSL", cast=bool)
+app.config['MAIL_DEFAULT_SENDER'] = config('MAIL_DEFAULT_SENDER')
+app.config['MAIL_ASCII_ATTACHMENTS'] = config("MAIL_ASCII_ATTACHMENTS", cast=bool)
+app.config['DEBUG'] = config("DEBUG", cast=bool)
 mail = Mail(app)
 
 # MySQL configurations
-app.config['MYSQL_DATABASE_USER'] = 'root'
-app.config['MYSQL_DATABASE_PASSWORD'] = '990602Wss,.'
-app.config['MYSQL_DATABASE_DB'] = 'calendar_system'
-app.config['MYSQL_DATABASE_HOST'] = 'localhost'
+app.config['MYSQL_DATABASE_USER'] = config("MYSQL_DATABASE_USER")
+app.config['MYSQL_DATABASE_PASSWORD'] = config("MYSQL_DATABASE_PASSWORD")
+app.config['MYSQL_DATABASE_DB'] = config("MYSQL_DATABASE_DB")
+app.config['MYSQL_DATABASE_HOST'] = config("MYSQL_DATABASE_HOST")
 mysql.init_app(app)
 
 
@@ -50,7 +52,7 @@ PROJECT_ROOT = dir
 app.config['SECRET_KEY'] = 'Thisissupposedtobesecret!'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:////' + PROJECT_ROOT + '/database.db'
 
-#app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@127.0.0.1:3306/calendar_system'
+# app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:root@127.0.0.1:3306/calendar_system'
 Bootstrap(app)
 db = SQLAlchemy(app)
 #
