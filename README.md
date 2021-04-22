@@ -22,6 +22,12 @@ GRASP
 SOLID 
     Liskov Substitution  
         For view we can substitute the different views (by design)  
+
+OO
+    Encapsulation       
+        We have classes encapsulating the different functionalities, like event, user_methods etc.  
+    Inheritence  
+        FlaskForm is inherited by EventForm, UserForm etc.
     
 
     
