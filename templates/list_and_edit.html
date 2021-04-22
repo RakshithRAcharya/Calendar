@@ -29,7 +29,7 @@
             <h2 style="color: #0088cc">Add schedule</h2>
                 <div class="row" style="color: #d6838d">
                   <div class='col-sm-5'>
-                      <form class="form-signin" method="POST" action="/edit">
+                      <form class="form-signin" method="POST" action="/create">
                           {{ form.csrf_token }}
                           {{ form.hidden_tag() }}
                           {{ wtf.quick_form(form) }}

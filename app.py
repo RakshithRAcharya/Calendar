@@ -122,9 +122,9 @@ class Event(db.Model):
 		cursor.execute(sql_delete)
 		conn.commit()
 		conn.close()
-		return redirect(url_for('Event_Utils:edit'))
+		return redirect(url_for('Event_Utils:create'))
 
-	@app.route('/edit/<int:event_id>', methods = ['GET', 'POST'])
+	@app.route('/create/<int:event_id>', methods = ['GET', 'POST'])
 	def descirbe(event_id):
 		print("Incoming at this time Event ID % i" % event_id)
 		one_event = Event.query.filter_by(id=event_id).first()
@@ -177,12 +177,12 @@ class Event(db.Model):
 		msg = Message('Invite for {}'.format(num2[0]), sender = 'testingexample160@gmail.com', recipients = num )
 		msg.body = "Hello this is the invite for the event : %(event_name)s, starting from %(start_time)s till %(end_time)s"%{"event_name": num2[0], "start_time": num2[1], "end_time": num2[2]}
 		mail.send(msg)
-		return redirect(url_for('Event_Utils:edit'))
+		return redirect(url_for('Event_Utils:create'))
 
 class Event_Utils(FlaskView):
 	route_base = '/'
-	@route('/edit', methods=['GET', 'POST'])
-	def edit(event_id=None):
+	@route('/create', methods=['GET', 'POST'])
+	def create(event_id=None):
 		
 		form = EventForm()
 		search_form = SearchForm()
@@ -198,7 +198,7 @@ class Event_Utils(FlaskView):
 		if form.validate_on_submit():
 			print("Verified successfully")
 			new_event = Event(title=form.event_title.data,
-						url='http://127.0.0.1:5000/edit',
+						url='http://127.0.0.1:5000/create',
 							type=form.type.data,
 							invite_list=form.invite_list.data,
 							start_time=form.start.data,
@@ -212,9 +212,9 @@ class Event_Utils(FlaskView):
 				Event.add(new_event)
 				new_id = new_event.id
 				tmp_event = Event.query.filter_by(id=new_id).first()
-				tmp_event.url = 'http://127.0.0.1:5000/edit/' + str(new_id)
+				tmp_event.url = 'http://127.0.0.1:5000/create/' + str(new_id)
 				db.session.commit()
-				return redirect(url_for('Event_Utils:edit'))
+				return redirect(url_for('Event_Utils:create'))
 			except Exception as e:
 				print(e)
 				print("There were some problems when joining this event!")
@@ -234,8 +234,6 @@ class Event_Utils(FlaskView):
 				print(ev.type)
 				print(ev.start_time)
 			return render_template('search_result.html', keyword=keyword, search=result, res_len=len(result))
-
-		#print("After entering the edit function, it will return list_and_edit html, the search result is:")
 		return render_template('list_and_edit.html', form=form, search_form=search_form, user=current_user, event_list=all_event_list, len=len(all_event_list), search=result,res_len=len(result))
 
 
@@ -273,7 +271,6 @@ def calendar_events():
 		print('OH my god! Exception found!')
 		print(e)
 	finally:
-		print("There is a finally in calendar_event that I don’t know why, conn is Nonetype, and the database has not been deployed yet")
 		cursor.close()
 		conn.close()
 	
