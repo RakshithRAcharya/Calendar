@@ -168,7 +168,7 @@ class RegisterForm(FlaskForm):
 class EventForm(FlaskForm):
 	event_title = StringField('Schedule name', validators=[InputRequired(message='The schedule name cannot be empty')])
 	type = SelectField('Please select a category', validators=[InputRequired()],
-					   choices=[('event-info', 'Info Blue'), ('event-important', 'Important-red'), ('event-error', 'Normal-gray')],
+					   choices=[('event-info', 'Reminder'), ('event-important', 'Important'), ('event-error', 'Normal')],
 					   id='typearea')
 	invite_list = StringField("Invite List")
 	start = DateTimeField('Start time（format：yyyy/mm/dd hh:mm）', validators=[InputRequired(message='The start date cannot be empty')], format='%Y/%m/%d %H:%M',id='datetime-start')
@@ -202,28 +202,33 @@ class Event_Utils(FlaskView):
 
 		if form.validate_on_submit():
 			print("Verified successfully")
-			new_event = Event(title=form.event_title.data,
-						url='http://127.0.0.1:5000/create',
-							type=form.type.data,
-							invite_list=form.invite_list.data,
-							start_time=form.start.data,
-							end_time=form.end.data,
-							author_name=current_user.username)
-			print(new_event.title)
-			print(new_event.type)
-			print(new_event.start_time)
-			print(new_event.author_name)
-			try:
-				Event.add(new_event)
-				new_id = new_event.id
-				tmp_event = Event.query.filter_by(id=new_id).first()
-				tmp_event.url = 'http://127.0.0.1:5000/create/' + str(new_id)
-				db.session.commit()
-				return redirect(url_for('Event_Utils:create'))
-			except Exception as e:
-				print(e)
-				print("There were some problems when joining this event!")
-				return 'There were some problems when joining this event!'
+			if form.start.data>=form.end.data:
+				flash(u"End time should be greater than start time", "error")
+				return render_template('list_and_edit.html', form=form, search_form=search_form, user=current_user, event_list=all_event_list, len=len(all_event_list), search=result,res_len=len(result))
+			else:
+				new_event = Event(title=form.event_title.data,
+							url='http://127.0.0.1:5000/create',
+								type=form.type.data,
+								invite_list=form.invite_list.data,
+								start_time=form.start.data,
+								end_time=form.end.data,
+								author_name=current_user.username)
+				
+				print(new_event.title)
+				print(new_event.type)
+				print(new_event.start_time, type(new_event.start_time))
+				print(new_event.author_name)
+				try:
+					Event.add(new_event)
+					new_id = new_event.id
+					tmp_event = Event.query.filter_by(id=new_id).first()
+					tmp_event.url = 'http://127.0.0.1:5000/create/' + str(new_id)
+					db.session.commit()
+					return redirect(url_for('Event_Utils:create'))
+				except Exception as e:
+					print(e)
+					print("There were some problems when joining this event!")
+					return 'There were some problems when joining this event!'
 		elif search_form.validate_on_submit():
 			keyword = search_form.keyword.data
 			sql_search = '%' + keyword + '%'

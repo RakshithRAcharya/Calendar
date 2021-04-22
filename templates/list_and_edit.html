@@ -17,7 +17,7 @@
 {% block content %}
 
     <div class="jumbotron text-center">
-      <h1>Calendar Management Center</h1>
+      <h1>Event Management Center</h1>
       <p>Add or delete your schedule here</p>
     </div>
 
@@ -58,6 +58,15 @@
             </nav>
 
             <div class="informs">
+              {% with messages = get_flashed_messages(with_categories=true) %}
+              {% if messages %}
+                <ul class=flashes>
+                {% for category, message in messages %}
+                  <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+              {% endif %}
+            {% endwith %}
             <form class="navbar-form navbar-left" method="post">
                 {{ search_form.hidden_tag() }}
                 {{ wtf.quick_form(search_form) }}
@@ -163,14 +172,16 @@
     <script src="https://smtpjs.com/v3/smtp.js"></script>
     <script type="text/javascript">
         $(function () {
-          $('#datetime-start').datetimepicker({onShow:function( ct ){
+          $('#datetime-start').datetimepicker({onShow:function(){
    this.setOptions({
     maxDate:jQuery('#datetime-end').val()?jQuery('#datetime-end').val():false
    })
   }});
-          $('#datetime-end').datetimepicker({onShow:function( ct ){
+  console.log(jQuery('#datetime-start').val())
+          $('#datetime-end').datetimepicker({onShow:function(){
    this.setOptions({
     minDate:jQuery('#datetime-start').val()?jQuery('#datetime-start').val():false
+
    })
   }});
         });
@@ -199,5 +210,6 @@
 				location.href=jumpurl;
 				}
         }
+    
     </script>
 {% endblock %}
