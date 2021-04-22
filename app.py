@@ -127,6 +127,8 @@ class Event(db.Model):
 				if user:
 					new_event = Event(title=ev.title,url=ev.url,type=ev.type,invite_list=cur_user_event[0].invite_list,start_time=ev.start_time,end_time=ev.end_time,author_name=use)
 					Event.add(new_event)
+				else:
+					print("NO USER LINE NO 131")
 		db.session.commit()
 		return render_template('invite.html', form=form)
 
@@ -135,7 +137,7 @@ class Event(db.Model):
 		conn = sqlite3.connect("database.db")
 		cursor = conn.cursor()
 		sql_delete = 'SELECT invite_list FROM event WHERE id={}'.format(event_id)
-		sql_event = 'SELECT title, start_time, end_time FROM event WHERE id={}'.format(event_id)
+		sql_event = 'SELECT title, start_time, end_time, author_name FROM event WHERE id={}'.format(event_id)
 		cursor.execute(sql_delete)
 		a = cursor.fetchall()
 		num = (sum(a, ()))[0].split(',')
@@ -146,7 +148,7 @@ class Event(db.Model):
 		print(num2)
 		conn.close()
 		msg = Message('Invite for {}'.format(num2[0]), sender = 'testingexample160@gmail.com', recipients = num )
-		msg.body = "Hello this is the invite for the event : %(event_name)s, starting from %(start_time)s till %(end_time)s"%{"event_name": num2[0], "start_time": num2[1], "end_time": num2[2]}
+		msg.body = f"Hello,\n You have been invited by {num2[3]} for the event : {num2[0]}, starting from {num2[1]} to {num2[2]}.\n You can check this event out in your 'OOAD Calendar App' Account.\n Thanks"
 		mail.send(msg)
 		return redirect(url_for('Event_Utils:create'))
 
