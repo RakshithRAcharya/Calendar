@@ -17,4 +17,5 @@ Flask-WTF
 Jinja2
 WTForms
 pymysql
+flask-cors
 python-decouple

@@ -19,10 +19,10 @@ from flask_mail import Mail, Message
 from os import environ
 import pprint
 from decouple import config
-
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 mail= Mail(app)
 mysql = MySQL()
 
@@ -60,45 +60,14 @@ login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-@login_manager.user_loader
-def load_user(user_id):
-	return User.query.get(int(user_id))
-
-class LoginForm(FlaskForm):
-	username = StringField('username', validators=[InputRequired(message='Username cannot be empty'), Length(min=3, max=15)])
-	password = PasswordField('password', validators=[InputRequired(message='Password cannot be empty'), Length(min=8, max=80)])
-	remember = BooleanField('remember me')
-
-class RegisterForm(FlaskForm):
-	email = StringField('email', validators=[InputRequired(message='Email cannot be empty'),Email(message='This is not the correct email format'), Length(max=50)])
-	username = StringField('username', validators=[InputRequired(message='Username cannot be empty'), Length(min=3, max=15)])
-	password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
-	submit = SubmitField('Submit')
-
-class EventForm(FlaskForm):
-	event_title = StringField('Schedule name', validators=[InputRequired(message='The schedule name cannot be empty')])
-	type = SelectField('Please select a category', validators=[InputRequired()],
-					   choices=[('event-info', 'Info Blue'), ('event-important', 'Important-red'), ('event-error', 'Normal-gray')],
-					   id='typearea')
-	invite_list = StringField("Invite List")
-	start = DateTimeField('Start time（format：yyyy/mm/dd hh:mm）', validators=[InputRequired(message='The start date cannot be empty')], format='%Y/%m/%d %H:%M',id='datetime-start')
-	end = DateTimeField('End Time（format：yyyy/mm/dd hh:mm）', validators=[InputRequired(message='The end date cannot be empty')], format='%Y/%m/%d %H:%M',id='datetime-end')
-	descirbe = StringField('Detailed remarks')
-	submit = SubmitField('submit')
-
-class InviteForm(FlaskForm):
-	event_id = IntegerField("Event Id :")
-	invite_list = StringField("Invite List", validators=[InputRequired()])
-
-class SearchForm(FlaskForm):
-	keyword = StringField('Keyword search schedule', validators=[InputRequired()])
-	submit = SubmitField('search for')
+temp_username = ''
 
 class User(UserMixin, db.Model):
 	id = db.Column(db.Integer, primary_key=True)
 	username = db.Column(db.String(15), unique=True) 
 	email = db.Column(db.String(15), unique=True)
 	password = db.Column(db.String(80))
+
 
 class Event(db.Model):
 	id = db.Column(db.Integer, primary_key=True)  # unique id
@@ -181,6 +150,40 @@ class Event(db.Model):
 		mail.send(msg)
 		return redirect(url_for('Event_Utils:create'))
 
+@login_manager.user_loader
+def load_user(user_id):
+	return User.query.get(int(user_id))
+
+class LoginForm(FlaskForm):
+	username = StringField('username', validators=[InputRequired(message='Username cannot be empty'), Length(min=3, max=15)])
+	password = PasswordField('password', validators=[InputRequired(message='Password cannot be empty'), Length(min=8, max=80)])
+	remember = BooleanField('remember me')
+
+class RegisterForm(FlaskForm):
+	email = StringField('email', validators=[InputRequired(message='Email cannot be empty'),Email(message='This is not the correct email format'), Length(max=50)])
+	username = StringField('username', validators=[InputRequired(message='Username cannot be empty'), Length(min=3, max=15)])
+	password = PasswordField('password', validators=[InputRequired(), Length(min=8, max=80)])
+	submit = SubmitField('Submit')
+
+class EventForm(FlaskForm):
+	event_title = StringField('Schedule name', validators=[InputRequired(message='The schedule name cannot be empty')])
+	type = SelectField('Please select a category', validators=[InputRequired()],
+					   choices=[('event-info', 'Info Blue'), ('event-important', 'Important-red'), ('event-error', 'Normal-gray')],
+					   id='typearea')
+	invite_list = StringField("Invite List")
+	start = DateTimeField('Start time（format：yyyy/mm/dd hh:mm）', validators=[InputRequired(message='The start date cannot be empty')], format='%Y/%m/%d %H:%M',id='datetime-start')
+	end = DateTimeField('End Time（format：yyyy/mm/dd hh:mm）', validators=[InputRequired(message='The end date cannot be empty')], format='%Y/%m/%d %H:%M',id='datetime-end')
+	descirbe = StringField('Detailed remarks')
+	submit = SubmitField('submit')
+
+class InviteForm(FlaskForm):
+	event_id = IntegerField("Event Id :")
+	invite_list = StringField("Invite List", validators=[InputRequired()])
+
+class SearchForm(FlaskForm):
+	keyword = StringField('Keyword search schedule', validators=[InputRequired()])
+	submit = SubmitField('search for')
+
 class Event_Utils(FlaskView):
 	route_base = '/'
 	@route('/create', methods=['GET', 'POST'])
@@ -246,18 +249,18 @@ def index():
 
 
 @app.route('/dashboard',methods=['GET','POST']) # profile
-@login_required
 def dashboard():
 	return render_template('calendar_events.html', name=current_user.username)
 
-@app.route('/calendar-events')
+@app.route('/calendar-events', methods=['GET', 'POST'])
 def calendar_events():
 	conn = None
 	cursor = None
 	try:
+		global temp_username
 		conn = sqlite3.connect("database.db")
 		cursor = conn.cursor()
-		sql_select = "SELECT id, title, url, type, (strftime('%s', start_time)-28800)*1000 as start, (strftime('%s', end_time)-28800)*1000 as end FROM event where author_name='" + current_user.username + "'";
+		sql_select = "SELECT id, title, url, type, (strftime('%s', start_time)-28800)*1000 as start, (strftime('%s', end_time)-28800)*1000 as end FROM event where author_name='" + temp_username + "'";
 		rows = cursor.execute(sql_select).fetchall()
 		print(rows)
 
@@ -288,6 +291,8 @@ class User_Utils(FlaskView):
 				if check_password_hash(user.password, form.password.data):
 					# if password correct, redirect to their dashboard
 					login_user(user, remember=form.remember.data)
+					global temp_username
+					temp_username = current_user.username
 					return redirect(url_for('dashboard'))
 
 			flash('Username does not exist or password is incorrect')
